@@ -9,3 +9,4 @@ sudo pip3 install opencv-contrib-python
 pip3 install -r "requirements.txt"
 sudo apt install git
 sudo pip3 install green
+sudo pip3 install PyGitHub
