@@ -36,14 +36,17 @@ def __create_json__(path, bot_name):
 
 
 def __extract_element__():
+    """ It inspects the bot's json file searching for the components and services of the robot """
     pass
 
 
 def __find_element__():
+    """ It searches the element (component of service) in the repository of Pyro4Bot and return the url path """
     pass
 
 
 def __download_directory__():
+    """ It downloads the directory of the component or service from the repository of GitHub """
     pass
 
 
