@@ -124,8 +124,8 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * **Alberto Serrano** - [@BertoSerrano](https://github.com/BertoSerrano)
 
 
-See also the list of [contributors](https://github.com/vzccristian/pyro4bot/graphs/contributors) who participated in this project.
-
+See also the list of [contributors here](https://github.com/Pyro4Bot-RoboLab/Pyro4Bot/graphs/contributors) 
+and [here](https://github.com/Pyro4Bot-RoboLab/Components/graphs/contributors) who participated in this project.
 
 
 ### About
