@@ -103,6 +103,8 @@ def extract_element(conf):
 
 
 def __search_in__(collection, element):
+    """ It searches an element or a piece of an element in a collection and returns the whole element back
+    This is used to searches the name of a component or a service in a collection of string paths """
     for item in collection:
         if element in item:
             return item
@@ -110,6 +112,7 @@ def __search_in__(collection, element):
 
 
 def __search_local__(current_dir, filename):
+    """ It searches and return the path to the missing file if it is the directory passed by parameter """
     for root, dirs, files in os.walk(current_dir):
         for file in files:
             if filename in file:
