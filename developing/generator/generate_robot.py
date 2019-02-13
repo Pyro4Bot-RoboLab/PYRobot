@@ -102,36 +102,43 @@ def extract_element(conf):
     return json_services_classes, json_components_classes
 
 
+def __search_in__(collection, element):
+    for item in collection:
+        if element in item:
+            return item
+    return None
+
+
+def __search_local__(current_dir, filename):
+    for root, dirs, files in os.walk(current_dir):
+        for file in files:
+            if filename in file:
+                path_file = os.path.join(root, file)
+                return path_file
+    return None
+
+
 # TODO: this only searches in one repository; it doesn't check if there are more than one repository in the config file
-def find_element(module, json_module_classes, repository):
+def find_element(module, json_module_classes, repository, bot_name):
     """ It searches the element (component of service) in the repository of Pyro4Bot and return the url path """
     stable = repository.get_contents(path=module + '/stable')
     developing = repository.get_contents(path=module + '/developing')
-    routes = []
-    for element in stable:
-        routes.append(element.path)
-    stable = routes
-    routes = []
-    for element in developing:
-        routes.append(element.path)
-    developing = routes
+    stable = [element.path for element in stable]
+    developing = [element.path for element in developing]
 
     routes = []
-    flag_inserted = False
     for element in json_module_classes:
-        # TODO : search it in the local folders of the robot
-        for remote in stable:
-            if element in remote:
-                routes.append(remote)
-                flag_inserted = True
-        if not flag_inserted:
-            for remote in developing:
-                routes.append(remote)
-                flag_inserted = True
-        if not flag_inserted:
-            print("ERROR with the element: ", element, ",\t it's not found in the repository.")
-            print("You should define in the directories of your robot")
-        flag_inserted = False
+        current_dir = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
+
+        obj = __search_local__(current_dir, element)
+        if obj is not None:
+            continue
+        else:
+            obj = __search_in__(stable, element)
+        obj = obj if obj is not None else __search_in__(developing, element)
+        routes.append(obj) if obj is not None else print("ERROR with the element: ", element,
+                                                         ",\t it's not found in the repository. \nYou should define in "
+                                                         "the directories of your robot")
 
     return routes
 
@@ -174,9 +181,10 @@ def update_robot(conf):
     # #  github = Github(login_or_token="17143d9e9f8b00012627e2545eefce8fda07d216")
     repository = Github("pyro4bot", "90racano").get_user().get_orgs()[0].get_repo('Components')
 
-    url_services = find_element(module='services', json_module_classes=json_services_classes, repository=repository)
+    url_services = find_element(module='services', json_module_classes=json_services_classes, repository=repository,
+                                bot_name=conf['robot'])
     url_components = find_element(module='components', json_module_classes=json_components_classes,
-                                  repository=repository)
+                                  repository=repository, bot_name=conf['robot'])
 
     download_element(conf['robot'], url_services)
     download_element(conf['robot'], url_components)
