@@ -82,8 +82,8 @@ def substitute_params(file, words):
     """ It substitutes one or several words in the file passed by parameter.
     This is used to change a template file with key words to the actual current word needed in each case """
     for line in fileinput.input([file], inplace=True):
-        for old, new in words:
-            print(line.replace(old, new), end='')
+        [line.replace(old, new) for old, new in words]
+        print(line, end='')
 
 
 def extract_element(conf):
