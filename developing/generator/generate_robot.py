@@ -30,6 +30,7 @@ def load_configuration(PYRO4BOT_HOME):
 
 
 def get_PYRO4BOT_HOME():
+    """ It turns back the environment path of the program Pyro4Bot """
     if "PYRO4BOT_HOME" not in os.environ:
         print("ERROR: PYRO4BOT_HOME not setted")
         print("please type export PYRO4BOT_HOME=<DIR> to set it up")
@@ -46,6 +47,7 @@ from node.libs.myjson import MyJson
 
 
 def check_args(args=None):
+    """ It checks the arguments passed to the main program and returns them in a dictionary  """
     parser = argparse.ArgumentParser(description='Generating or update a robot')
     parser.add_argument('robot',
                         help="Name for a Robot",
@@ -77,6 +79,8 @@ def check_args(args=None):
 
 
 def substitute_params(file, words):
+    """ It substitutes one or several words in the file passed by parameter.
+    This is used to change a template file with key words to the actual current word needed in each case """
     for line in fileinput.input([file], inplace=True):
         for old, new in words:
             print(line.replace(old, new), end='')
@@ -97,6 +101,7 @@ def extract_element(conf):
     return json_services_classes, json_components_classes
 
 
+# TODO: this only searches in one repository; it doesn't check if there are more than one repository in the config file
 def find_element(module, json_module_classes, repository):
     """ It searches the element (component of service) in the repository of Pyro4Bot and return the url path """
     stable = repository.get_contents(path=module + '/stable')
@@ -111,17 +116,21 @@ def find_element(module, json_module_classes, repository):
     developing = routes
 
     routes = []
-    flag = False
+    flag_inserted = False
     for element in json_module_classes:
+        # TODO : search it in the local folders of the robot
         for remote in stable:
             if element in remote:
                 routes.append(remote)
-                flag = True
-        if not flag:
+                flag_inserted = True
+        if not flag_inserted:
             for remote in developing:
                 routes.append(remote)
-                flag = True
-        flag = False
+                flag_inserted = True
+        if not flag_inserted:
+            print("ERROR with the element: ", element, ",\t it's not found in the repository.")
+            print("You should define in the directories of your robot")
+        flag_inserted = False
 
     return routes
 
@@ -147,9 +156,7 @@ def download_element(bot_name, url_directory):
         if 'init' not in element:
             element_name = os.path.join(*element.split('/'))
             file = os.path.join(local_path, element_name)
-            print(element)
             aux = configuration['REPOSITORIES'][0] + element
-            print(aux)
             file_url = configuration['REPOSITORIES'][0] + element
             urllib.request.urlretrieve(file_url, file)
 
@@ -160,8 +167,7 @@ def update_robot(conf):
 
     If the services and components of the robots are already in the repository, they will be downloaded.
     If not, the user must have developed the necessary files to handle those dependencies of the robots.
-    If neither of them are completed, this will show an error message to the user.
-    """
+    If neither of them are completed, this will show an error message to the user. """
     json_services_classes, json_components_classes = extract_element(conf)
 
     # #  github = Github(login_or_token="17143d9e9f8b00012627e2545eefce8fda07d216")
@@ -177,36 +183,40 @@ def update_robot(conf):
 
 def create_robot(conf):
     """ The first execution of this program will create the structure, files and directories needed to a
-    pyro4bot robot
-    """
-
+    pyro4bot robot """
     global configuration
     robot_path = os.path.join(conf["path"], conf["robot"])
-    if not os.path.exists(conf["path"]):
-        os.makedirs(conf["path"])
-    if not os.path.exists(robot_path):
-        # Whole structure of robot folders
-        source = os.path.join(configuration['generator'], 'template_robot')
-        shutil.copytree(source, robot_path)
+    try:
+        if not os.path.exists(conf["path"]):
+            os.makedirs(conf["path"])
+        if not os.path.exists(robot_path):
+            # Whole structure of robot folders
+            source = os.path.join(configuration['generator'], 'template_robot')
+            shutil.copytree(source, robot_path)
 
-        # Json file
-        source = os.path.join(robot_path, "model", "_robot.json")
-        if conf['json'] is not None:
-            conf['json'] = conf['json'] + '.json' if '.json' not in conf['json'] else conf['json']
-            target = os.path.join(robot_path, 'model', conf['json'])
+            # Json file
+            source = os.path.join(robot_path, "model", "_robot.json")
+            if conf['json'] is not None:
+                conf['json'] = conf['json'] + '.json' if '.json' not in conf['json'] else conf['json']
+                target = os.path.join(robot_path, 'model', conf['json'])
+            else:
+                target = os.path.join(robot_path, 'model', conf['robot'] + '.json')
+            shutil.move(source, target)
+            substitute_params(file=target,
+                              words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
+
+            # Python Client file
+            source = os.path.join(robot_path, 'clients', 'template_client.py')
+            target = os.path.join(robot_path, 'clients', 'client_' + conf['robot'] + '.py')
+            shutil.move(source, target)
+            substitute_params(file=target,
+                              words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
+            return True
         else:
-            target = os.path.join(robot_path, 'model', conf['robot'] + '.json')
-        shutil.move(source, target)
-        substitute_params(file=target, words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
-
-        # Python Client file
-        source = os.path.join(robot_path, 'clients', 'template_client.py')
-        target = os.path.join(robot_path, 'clients', 'client_' + conf['robot'] + '.py')
-        shutil.move(source, target)
-        substitute_params(file=target, words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
-        return True
-    else:
-        print("The robot {} already exists".format(conf["robot"]))
+            print("The robot {} exists".format(conf["robot"]))
+            return True
+    except:
+        print("ERROR: There has been an error with the files and folders of your robot")
         return False
 
 
@@ -216,20 +226,19 @@ if __name__ == "__main__":
     depending on the current development of the robot.
 
     The first time it is executed, it should be using only the argument 'robot_name' with the name of the robot;
-    for example: python3 generate_robot.py robot_name
+    for example: python3 generate_robot.py robot_name or ./generate_robot.py robot_name
 
     The second time, it expects the user has already described the robot in the json file, and developed the
     components and services needed in case they are not in the repository. Then, the execution should update the
-    directories like this: python3 generate_robot.py --update
-    """
+    directories like this: python3 generate_robot.py robot_name --update
+    
+    It shows the different available commands using --help (-h) argument also. (f.e.: ./generate_robot.py --help) """
 
     args = check_args(sys.argv[1:])
-    print(PYRO4BOT_HOME)
-    print(configuration)
 
     if create_robot(args):
         if args['update']:
             update_robot(args)
     else:
         if args['update']:
-            print("Yo cannot update the robot because it still doesn't exit.")
+            print("Yo cannot update the robot because it still doesn't exist.")
