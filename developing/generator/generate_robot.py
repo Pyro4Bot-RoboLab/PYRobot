@@ -14,7 +14,6 @@ import shutil
 from github import Github
 
 
-
 def load_configuration(PYRO4BOT_HOME):
     """ It returns the configuration json file """
     try:
@@ -44,6 +43,7 @@ configuration = load_configuration(PYRO4BOT_HOME)
 configuration["generator"] = os.path.join(PYRO4BOT_HOME, "generator")
 sys.path.append(PYRO4BOT_HOME)
 from node.libs.myjson import MyJson
+
 
 def check_args(args=None):
     parser = argparse.ArgumentParser(description='Generating or update a robot')
@@ -81,6 +81,7 @@ def substitute_params(file, words):
         for old, new in words:
             print(line.replace(old, new), end='')
 
+
 def extract_element(conf):
     """ It inspects the bot's json file searching for the components and services of the robot """
     json = MyJson(filename=conf['json']).json
@@ -96,7 +97,6 @@ def extract_element(conf):
     return json_services_classes, json_components_classes
 
 
-# TODO : More efficient!!
 def find_element(module, json_module_classes, repository):
     """ It searches the element (component of service) in the repository of Pyro4Bot and return the url path """
     stable = repository.get_contents(path=module + '/stable')
@@ -148,7 +148,7 @@ def download_element(bot_name, url_directory):
             element_name = os.path.join(*element.split('/'))
             file = os.path.join(local_path, element_name)
             print(element)
-            aux = configuration['REPOSITORIES'][0]+element
+            aux = configuration['REPOSITORIES'][0] + element
             print(aux)
             file_url = configuration['REPOSITORIES'][0] + element
             urllib.request.urlretrieve(file_url, file)
@@ -175,8 +175,6 @@ def update_robot(conf):
     download_element(conf['robot'], url_components)
 
 
-
-# TODO : Return True (created) or False (not created)
 def create_robot(conf):
     """ The first execution of this program will create the structure, files and directories needed to a
     pyro4bot robot
@@ -199,16 +197,17 @@ def create_robot(conf):
         else:
             target = os.path.join(robot_path, 'model', conf['robot'] + '.json')
         shutil.move(source, target)
-        substitute_params(file=target, old_word=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
+        substitute_params(file=target, words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
 
         # Python Client file
         source = os.path.join(robot_path, 'clients', 'template_client.py')
         target = os.path.join(robot_path, 'clients', 'client_' + conf['robot'] + '.py')
         shutil.move(source, target)
-        substitute_params(file=target, old_word=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
-
+        substitute_params(file=target, words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ethernet'])])
+        return True
     else:
         print("The robot {} already exists".format(conf["robot"]))
+        return False
 
 
 if __name__ == "__main__":
@@ -228,6 +227,9 @@ if __name__ == "__main__":
     print(PYRO4BOT_HOME)
     print(configuration)
 
-    create_robot(args)
-    if args['update']:
-        update_robot(args)
+    if create_robot(args):
+        if args['update']:
+            update_robot(args)
+    else:
+        if args['update']:
+            print("Yo cannot update the robot because it still doesn't exit.")
