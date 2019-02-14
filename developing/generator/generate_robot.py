@@ -147,7 +147,7 @@ def find_element(module, json_module_classes, repository, bot_name):
 
 
 def download_element(bot_name, url_directory):
-    """ It downloads the directory of the component or service from the repository of GitHub """
+    """ It downloads the file of the component or service from the GitHub repository of Pyro4Bot """
     global configuration
     local_path = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
     element_name = []
@@ -167,7 +167,6 @@ def download_element(bot_name, url_directory):
         if 'init' not in element:
             element_name = os.path.join(*element.split('/'))
             file = os.path.join(local_path, element_name)
-            aux = configuration['REPOSITORIES'][0] + element
             file_url = configuration['REPOSITORIES'][0] + element
             urllib.request.urlretrieve(file_url, file)
 
@@ -253,4 +252,4 @@ if __name__ == "__main__":
             update_robot(args)
     else:
         if args['update']:
-            print("Yo cannot update the robot because it still doesn't exist.")
+            print("You cannot update the robot because it still doesn't exist.")

@@ -7,13 +7,30 @@
 ## Prerequisites
 * Python 3.5 or above
 * Having your robot already built
+* Download the _Pyro4Bot_ project into the machine
+* Set up the environment folder of Pyro4Bot in your machine
 
 ## Installing
+If you don't have the environment setted up, the programm will show an error message like this:
+```
+ERROR: PYRO4BOT_HOME not setted
+please type export PYRO4BOT_HOME=<DIR> to set it up
+```
+To set it up, type the path of the program pyro4bot downloaded. For example:
+```
+export PYRO4BOT_HOME=/usr/my_user/pyro4bot/developing
+```
+or modify your _.bash_profile_ file to keep the environment permanently in the machine.
+
 
 ### First step
 Execute the python file with a name for your custom robot like this:
 ```
 python3 generate_robot.py my_robot
+```
+This is also valid:
+```
+./generate_robot.py my_robot
 ```
 
 ### Second step
@@ -31,127 +48,104 @@ That folder should have a structure like the following:
             /model.py
                 /my_robot.json
             /components
+                /template_component.py
             /services
+                /template_service.py
             /clients
+                /class_client_robot.py
+                /class_my_robot.py
             /gui_start.py
 ```
 
 The description of your robot is the json file, _my_robot.json_, there you must complete with the 
 components and services required to run your robot.
 
+Your model robot json file will be something like this:
+```
+{
+   "NODE":{
+      "name":"my_robot",
+      "ethernet":"wlan0"
+    },
+   "services":{
+        "servicename":{"cls":"classname","required_utility":"id_of_utility"}
+   },
+   "components":{
+        "componentname":{"cls":"classname", "required_dependency":"value_of_dependencies"}
+    }
+}
+```
+
+And it should have the components and services described. There you have an example:
+```
+{
+   "node":{
+      "name":"my_robot",
+      "ethernet":"wlan0"
+    },
+   "services":{
+        "picam":{"cls":"picam","ethernet":"<ethernet>","width":640,"height":480}
+   },
+   "components":{
+        "infrared":{"cls":"infrared","IR":[0,0,0,0],"frec":0.02},
+        "basemotion":{"cls":"basemotion","BASE":[0,0],"frec":0.03},
+        "pantilt":{"cls":"pantilt","PT":[90,90],"frec":0.03}
+    }
+}
+```
+
+
 ### Third step
 
- _...still **TODO**_
-
-<!-- Template for the Readme.me
-
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-* Raspberry Pi (any model)
-* Raspbian OS or similar OS compatible
-* ...
-
+Once you have your json file completed, you can generate the rest of required elements of your robot just typing:
+```
+./generate_robot.py my_robot -u
+```
+It will download the required elements from our [repository](https://github.com/Pyro4Bot-RoboLab/Components) if there are developed.
+For the json of the last example, it will generate:
 
 ```
-Give examples
+/developing
+/init
+    /generate_robot.py
+    /robots
+        /my_robot
+            /start.py
+            /model.py
+                /my_robot.json
+            /components
+                /stable
+                    /infrared
+                        /infrared.py
+                    /basemotion
+                        /basemotion.py
+                    /pantilt
+                        /pantilt.py
+                /template_component.py
+            /services
+                /stable
+                    /picam_socket
+                        /picam_socket.py
+                /template_service.py
+            /clients
+                /class_client_robot.py
+                /class_my_robot.py
+            /gui_start.py
 ```
+### Third step (second version)
+As you can see in the default services and components folders, there are templates files to the user,
+ to use them and create your customized elements for your bot.
+This way you won't need to update the robot to make it functional, but still we encourage you to use
+the same commands.
+
+It will check the components and services of your robot, and those elements you develop would prevail over ours.
 
 
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
+### Four step
+Go to your robot's folder and run:
 ```
-Give the example
+./start.py
 ```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-
-## Built With
-
-* Python 3.5
-* Pyro 4
-* Raspbian OS (version...
-* ...
-
-
-<!-- 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
- -->
- 
- <!-- 
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of
- conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the
- [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
- 
- -->
-
 
 
 ## _About_
