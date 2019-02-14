@@ -222,6 +222,11 @@ def create_robot(conf):
             shutil.move(source, target)
             substitute_params(file=target,
                               words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
+
+            target = os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'], 'start.py')
+            substitute_params(file=target,
+                              words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
+
             return True
         else:
             print("The robot {} exists".format(conf["robot"]))

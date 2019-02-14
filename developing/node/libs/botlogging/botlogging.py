@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ____________developed by paco andres____________________
 # ________in collaboration with cristian vazquez _________
