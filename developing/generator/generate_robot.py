@@ -153,11 +153,11 @@ def download_element(bot_name, url_directory):
     element_name = []
     url_element = []
     for each in url_directory:
-        aux = each.split('/')
-        aux = os.path.join(*aux)
-        file = os.path.join(local_path, aux)
-        if not os.path.exists(file):
-            os.makedirs(file)
+        dir = os.path.join(local_path, *each.split('/'))
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+            with open(os.path.join(dir, '__init__.py'), 'a+') as f:
+                f.write('\n')
         for string in each.split('/'):
             if string not in ('components', 'services', 'stable', 'developing'):
                 element_name.append(string)
