@@ -150,25 +150,20 @@ def download_element(bot_name, url_directory):
     """ It downloads the file of the component or service from the GitHub repository of Pyro4Bot """
     global configuration
     local_path = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
-    element_name = []
-    url_element = []
     for each in url_directory:
-        dir = os.path.join(local_path, *each.split('/'))
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-            with open(os.path.join(dir, '__init__.py'), 'a+') as f:
+        directory = each.replace('stable/', '')
+        directory = directory.replace('developing/', '')
+        directory = os.path.join(local_path, *directory.split('/'))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            # Generate an init file to each python package (each directory)
+            with open(os.path.join(directory, '__init__.py'), 'a+') as f:
                 f.write('\n')
-        for string in each.split('/'):
-            if string not in ('components', 'services', 'stable', 'developing'):
-                element_name.append(string)
-                url_element.append(each + '/' + string + '.py')
-
-    for element in url_element:
-        if 'init' not in element:
-            element_name = os.path.join(*element.split('/'))
-            file = os.path.join(local_path, element_name)
-            file_url = configuration['REPOSITORIES'][0] + element
-            urllib.request.urlretrieve(file_url, file)
+        for element_name in each.split('/'):  # Only takes the string of the element (component of service)
+            if element_name not in ('components', 'services', 'stable', 'developing'):
+                file = os.path.join(directory, element_name + '.py')
+                file_url = configuration['REPOSITORIES'][0] + each + '/' + element_name + '.py'
+                urllib.request.urlretrieve(file_url, file)
 
 
 def update_robot(conf):

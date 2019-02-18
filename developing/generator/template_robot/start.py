@@ -6,22 +6,8 @@ Launcher file
 import sys
 import os
 import json
-
-
-def load_configuration(PYRO4BOT_HOME):
-    """ It returns the configuration json file """
-    try:
-        with open(PYRO4BOT_HOME + '/configuration.json') as f:
-            data = json.load(f)
-            data["PYRO4BOT_HOME"] = PYRO4BOT_HOME
-            if "PYRO4BOT_ROBOTS" in data:
-                if data["PYRO4BOT_ROBOTS"][0] != "/":
-                    data["PYRO4BOT_ROBOTS"] = os.path.abspath(
-                        os.path.join(data["PYRO4BOT_HOME"], data["PYRO4BOT_ROBOTS"], '<robot>'))
-        return data
-    except:
-        print("ERRORS in configuration file")
-        sys.exit()
+from termcolor import colored
+import setproctitle
 
 
 def get_PYRO4BOT_HOME():
@@ -35,22 +21,20 @@ def get_PYRO4BOT_HOME():
 
 
 PYRO4BOT_HOME = get_PYRO4BOT_HOME()
-configuration = load_configuration(PYRO4BOT_HOME)
 sys.path.append(PYRO4BOT_HOME)
-sys.path.append(configuration['PYRO4BOT_ROBOTS'])
 
 from node import robotstarter as robot
-import setproctitle
 from node.libs import utils
-import time
-from termcolor import colored
+# from node.libs import inspection
 import components
 import services
 
 if __name__ == "__main__":
     try:
-        jsonbot = os.path.abspath(os.path.join(configuration['PYRO4BOT_ROBOTS'], "model", "<robot>" + ".json"))
-
+        jsonbot = os.path.abspath(
+            os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "model", "<robot>" + ".json"))
+        # inspection._classes,inspection._module_errors = inspection.inspecting_modules("services","components")
+        # inspection._classes_lib,inspection._modules_libs_errors = inspection.inspecting_modules("node.libs")
         PROCESS = robot.starter(filename=jsonbot)
 
         setproctitle.setproctitle("PYRO4BOT." + PROCESS[0] + "." + "Console")

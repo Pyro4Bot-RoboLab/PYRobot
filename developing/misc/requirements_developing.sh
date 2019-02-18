@@ -6,7 +6,7 @@ sudo apt install atom
 # for a raspberry pi Zero, don't install opencv:
 # for the robot, install:
 sudo pip3 install opencv-contrib-python
-pip3 install -r "requirements.txt"
 sudo apt install git
 sudo pip3 install green
 sudo pip3 install PyGitHub
+pip3 install -r "requirements.txt"
