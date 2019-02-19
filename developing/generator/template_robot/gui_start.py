@@ -1,6 +1,6 @@
 from tkinter import *
 import tkinter.ttk
-from developing.findrobots.findrobots import Searcher
+from findrobots.findrobots import Searcher
 import pygubu
 from pexpect import pxssh
 

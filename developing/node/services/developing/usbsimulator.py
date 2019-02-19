@@ -5,7 +5,7 @@
 # _________collaboration with cristian vazquez____________
 import time
 import datetime
-from node.libs import control, utils, token
+from node.libs import control, utils, publication
 import serial
 import simplejson as json
 import Pyro4
@@ -15,7 +15,7 @@ class usbsimulator(control.Control):
     __REQUIRED = ["comPort", "comPortBaud"]
 
     def __init__(self):
-        self.buffer = publication.Publication()()
+        self.buffer = publication.Publication()
         self.available = 0
         self.lock = 1
         self.IR = [0, 1, 1]

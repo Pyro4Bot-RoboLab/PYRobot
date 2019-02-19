@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import bluetooth
 from subprocess import Popen, PIPE
 import sys

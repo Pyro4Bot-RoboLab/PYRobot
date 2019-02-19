@@ -14,7 +14,7 @@ class fake(control.Control):
         self.start_worker(self.worker)
 
         # Publication example
-        # self.buffer = publication.Publication()()
+        # self.buffer = publication.Publication()
         # self.buffer.update_key_value("value", self.value)
         # self.start_publisher(self.buffer)
         # Subscription example
