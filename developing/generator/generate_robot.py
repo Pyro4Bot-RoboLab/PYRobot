@@ -106,16 +106,18 @@ def __search_in__(collection, element):
     """ It searches an element or a piece of an element in a collection and returns the whole element back
     This is used to searches the name of a component or a service in a collection of string paths """
     for item in collection:
-        if element in item:
+        string = item.split('/')
+        if element == string[-1]:
             return item
     return None
 
 
 def __search_local__(current_dir, filename):
     """ It searches and return the path to the missing file if it is the directory passed by parameter """
+    filename = filename + '.py' if '.py' not in filename else filename
     for root, dirs, files in os.walk(current_dir):
         for file in files:
-            if filename in file:
+            if filename == file:
                 path_file = os.path.join(root, file)
                 return path_file
     return None
@@ -131,17 +133,23 @@ def find_element(module, json_module_classes, repository, bot_name):
 
     routes = []
     for element in json_module_classes:
+        print("Searching the element ", element)
+
         current_dir = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
 
         obj = __search_local__(current_dir, element)
         if obj is not None:
+            print("Found in local:", os.path.abspath(obj))
             continue
         else:
             obj = __search_in__(stable, element)
         obj = obj if obj is not None else __search_in__(developing, element)
-        routes.append(obj) if obj is not None else print("ERROR with the element: ", element,
-                                                         ",\t it's not found in the repository. \nYou should define in "
-                                                         "the directories of your robot")
+        if obj is not None:
+            routes.append(obj)
+            print("Found in repository: ", obj)
+        else:
+            print("ERROR with the element: ", element, ".\t It's not found in the repository.")
+            print("You should define it in the directories of your robot")
 
     return routes
 
@@ -163,6 +171,7 @@ def download_element(bot_name, url_directory):
             if element_name not in ('components', 'services', 'stable', 'developing'):
                 file = os.path.join(directory, element_name + '.py')
                 file_url = configuration['REPOSITORIES'][0] + each + '/' + element_name + '.py'
+                print("Downloading", element_name, " from ", file_url)
                 urllib.request.urlretrieve(file_url, file)
 
 
@@ -242,7 +251,7 @@ if __name__ == "__main__":
     The second time, it expects the user has already described the robot in the json file, and developed the
     components and services needed in case they are not in the repository. Then, the execution should update the
     directories like this: python3 generate_robot.py robot_name --update
-    
+
     It shows the different available commands using --help (-h) argument also. (f.e.: ./generate_robot.py --help) """
 
     args = check_args(sys.argv[1:])
@@ -250,6 +259,9 @@ if __name__ == "__main__":
     if create_robot(args):
         if args['update']:
             update_robot(args)
+            print("Completed.")
+        else:
+            print("Completed")
     else:
         if args['update']:
             print("You cannot update the robot because it still doesn't exist.")

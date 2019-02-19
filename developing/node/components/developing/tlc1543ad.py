@@ -7,7 +7,7 @@ from node.libs.gpio.GPIO import *
 
 
 class tlc1543ad(control.Control):
-    """ Control of the tlc1543ad sensor through GPIO """
+    """ Control of the infrared tlc1543ad sensor through GPIO """
     __REQUIRED = ["CS", "Clock", "Address", "DataOut", "line"]
 
     def __init__(self):
