@@ -107,7 +107,7 @@ def __search_in__(collection, element):
     This is used to searches the name of a component or a service in a collection of string paths """
     for item in collection:
         string = item.split('/')
-        if element == string[-1]:
+        if element.lower() == string[-1].lower():
             return item
     return None
 
@@ -117,7 +117,7 @@ def __search_local__(current_dir, filename):
     filename = filename + '.py' if '.py' not in filename else filename
     for root, dirs, files in os.walk(current_dir):
         for file in files:
-            if filename == file:
+            if filename.lower() == file.lower():
                 path_file = os.path.join(root, file)
                 return path_file
     return None
