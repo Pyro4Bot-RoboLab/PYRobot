@@ -117,11 +117,7 @@ def __get_source_list():
 def __search_in__(collection, element):
     """ It searches an element or a piece of an element in a collection and returns the whole element back
     This is used to searches the name of a component or a service in a collection of string paths """
-    for item in collection:
-        string = item.split('/')
-        if element.lower() == string[-1].lower():
-            return item
-    return None
+    return next((item for item in collection if element.lower() == item.split('/')[-1].lower()), None)
 
 
 def __search_local__(current_dir, filename):
@@ -143,8 +139,8 @@ def find_element(module, json_module_classes, repository, bot_name):
     stable = [element.path for element in stable]
     developing = [element.path for element in developing]
 
-    local = [os.path.join(root, file) for root, file in
-             [(root, files) for root, dirs, files in os.walk(os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name))]]
+    local = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
+                            os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)))] for it in lst]
 
     routes = []
     for element in json_module_classes:
