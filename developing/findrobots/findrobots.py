@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import time
 import threading
@@ -86,6 +86,5 @@ class Searcher:
 
 if __name__ == '__main__':
     s = Searcher()
-    for r in s.robots.items():
-        print(r)
-        # TODO : in python3, it prints: "(('158.49.247.121', 56665), b'pyro4bot1/hello')" with that character 'b' before the name
+    for (ip, bot) in s.robots.items():
+        print("The robot: ", bot.decode().replace("/hello", ""), " is at: ", ip)

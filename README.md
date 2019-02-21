@@ -119,9 +119,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 * **Paco Andrés** - *Project manager* - [@pacoandresh](https://github.com/pacoandresh)
 * **Cristian Vázquez** - [@vzccristian](https://github.com/vzccristian)
+* **Alberto Serrano** - [@BertoSerrano](https://github.com/BertoSerrano)
 * **José Manuel Agúndez** - [@JMAgundezG](https://github.com/JMAgundezG)
 * **Pablo Tato** - [@ptato](https://github.com/ptato)
-* **Alberto Serrano** - [@BertoSerrano](https://github.com/BertoSerrano)
 
 
 See also the list of [contributors here](https://github.com/Pyro4Bot-RoboLab/Pyro4Bot/graphs/contributors) 

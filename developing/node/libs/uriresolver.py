@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ____________developed by paco andres____________________
 # All data defined in json configuration are attributes in your code object

@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # lock().acquire()
 # ____________developed by paco andres____________________
 # _________collaboration with cristian vazquez____________
 import time
-from node.libs import control, utils, token
+from node.libs import control, utils, publication
 from node.libs.bluetooth import bt_RFCOMM
 import simplejson as json
 import Pyro4
@@ -16,7 +16,7 @@ class bluetooth_serial(control.Control):
 
     def __init__(self):
         self.subscriptors = {}
-        self.buffer = publication.Publication()()
+        self.buffer = publication.Publication()
         self.writer = []
         self.clients = {}
         self.devices = None

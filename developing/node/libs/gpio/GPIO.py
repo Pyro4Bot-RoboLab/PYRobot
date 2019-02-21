@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # this classes are an adaption of adafruit gpio class
-# support three diferent moderboards
+# support three different motherboards
 # ____________developed by paco andres____________________
 
-from developing.node.libs.gpio.Platform import *
-from developing.node.libs.gpio.Platform import HARDWARE
+from node.libs.gpio.Platform import *
+from node.libs.gpio.Platform import HARDWARE
 import Pyro4
-from developing.node.libs.gpio.gpiodef import *
-from developing.node.libs.gpio.PWM import *
+from node.libs.gpio.gpiodef import *
+from node.libs.gpio.PWM import *
 
 if HARDWARE == "RASPBERRY_PI":
     import RPi.GPIO as rpi_gpio

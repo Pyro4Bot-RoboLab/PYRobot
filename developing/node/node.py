@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ____________developed by paco andres____________________
 # ________in collaboration with cristian vazquez _________
@@ -12,12 +12,13 @@ import traceback
 import Pyro4
 from termcolor import colored
 import setproctitle
-from node.libs.inspection import _modules_libs_errors, show_warnings
+from node.libs.inspection import inspecting_modules
 import pprint
 
-show_warnings(_modules_libs_errors)
+# show_warnings(_modules_libs_errors)
 _LOCAL_TRYS = 5
 _REMOTE_TRYS = 5
+_classes_lib, _modules_libs_errors = inspecting_modules("node.libs")
 
 
 def import_class(services, components):
@@ -28,8 +29,7 @@ def import_class(services, components):
     for module, cls in services:
         try:
             print(colored("      FROM {} IMPORT {}".format(module, cls), "cyan"))
-            # TODO : change that "node.{}" to the actual reference.
-            exec("from node.{} import {}".format(module, cls), globals())
+            exec("from {} import {}".format(module, cls), globals())
         except Exception:
             print("ERROR IMPORTING CLASS: {} FROM MODULE {}".format(cls, module))
             traceback.print_exc()
@@ -38,8 +38,7 @@ def import_class(services, components):
     for module, cls in components:
         try:
             print(colored("      FROM {} IMPORT {}".format(module, cls), "cyan"))
-            # TODO : change that "node.{}" to the actual reference.
-            exec("from node.{} import {}".format(module, cls), globals())
+            exec("from {} import {}".format(module, cls), globals())
         except Exception:
             print("ERROR IMPORTING CLASS: {} FROM MODULE {}".format(cls, module))
             traceback.print_exc()

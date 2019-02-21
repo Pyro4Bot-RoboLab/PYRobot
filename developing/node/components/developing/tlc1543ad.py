@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
 from node.libs import control
@@ -7,6 +7,7 @@ from node.libs.gpio.GPIO import *
 
 
 class tlc1543ad(control.Control):
+    """ Control of the infrared tlc1543ad sensor through GPIO """
     __REQUIRED = ["CS", "Clock", "Address", "DataOut", "line"]
 
     def __init__(self):

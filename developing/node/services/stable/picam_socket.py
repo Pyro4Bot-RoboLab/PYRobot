@@ -5,7 +5,7 @@
 import time
 from node.libs import control
 from node.libs import utils
-import picamera
+from picamera import PiCamera
 from io import BytesIO
 import Pyro4
 import socket

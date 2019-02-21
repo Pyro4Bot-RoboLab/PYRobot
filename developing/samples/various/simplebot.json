@@ -4,7 +4,7 @@
       "ethernet":"wlp8s0"
     },
    "services":{
-        "usbserial":{"cls":"usbsimulator","comPort":"/dev/ttyS0","comPortBaud":115200,"mode":"local"}
+        "usbserial":{"cls":"usbserial","comPort":"/dev/ttyS0","comPortBaud":115200,"frec":0.01}
    },
    "components":{
         "milaser":{"cls":"laser","LASER":[0,0]},

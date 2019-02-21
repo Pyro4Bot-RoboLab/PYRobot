@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # ____________developed by cristian vazque____________________
 # _________collaboration with cristian vazquez____________
 

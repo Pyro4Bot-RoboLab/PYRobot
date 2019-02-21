@@ -1,12 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ____________developed by paco andres____________________
 
 import os.path
 from node.libs import utils, myjson
-from node.libs.inspection import _modules, _modules_errors, _classes, import_module
+from node.libs.inspection import import_module, inspecting_modules
 from termcolor import colored
 import pprint
+
+_classes, _modules_errors = inspecting_modules("services", "components")
 
 
 def get_field(search_dict, field, enable=True):

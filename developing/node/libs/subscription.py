@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def dict_to_class(d):
     if ("_target" in d and "_target_attr" in d and "_subscripter_attr" in d and
