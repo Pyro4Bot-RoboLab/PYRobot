@@ -24,6 +24,7 @@ def get_PYRO4BOT_HOME():
 PYRO4BOT_HOME = get_PYRO4BOT_HOME()
 sys.path.append(PYRO4BOT_HOME)
 
+from node.libs.terminal import Terminal
 from node import robotstarter as robot
 from node.libs import utils
 # from node.libs import inspection
@@ -37,31 +38,14 @@ if __name__ == "__main__":
         # inspection._classes,inspection._module_errors = inspection.inspecting_modules("services","components")
         # inspection._classes_lib,inspection._modules_libs_errors = inspection.inspecting_modules("node.libs")
         PROCESS = robot.starter(filename=jsonbot)
-
         setproctitle.setproctitle("PYRO4BOT." + PROCESS[0] + "." + "Console")
         ROB = utils.get_pyro4proxy(PROCESS[1], PROCESS[0])
 
-        salir = True
-        time.sleep(2)
-        while salir:
-            print(colored("\n----\nAvailable commands:: \n* Doc \n* Status \n* Exit\n----\n", "green"))
-            cad = input("{} ".format(colored(PROCESS[0] + ":", 'green')))
-            if cad.upper() == "EXIT":
-                ROB.shutdown()
-                os.kill(PROCESS[3], 9)
-                exit()
-            if cad.upper() == "STATUS":
-                ROB.print_process()
-            if cad.upper() == "DOC":
-                for k, v in ROB.__docstring__().items():
-                    print(k)
-                    print("\t" + str(v))
-            if cad.upper() == "SALIR":
-                salir = False
-                exit()
+        Terminal(ROB, PROCESS)
     except IOError:
         print("The file can not be found: %s" % jsonbot)
     except (KeyboardInterrupt, SystemExit):
+        time.sleep(1)
         os._exit(0)
     except Exception:
         raise
