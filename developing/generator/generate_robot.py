@@ -102,6 +102,18 @@ def extract_element(conf):
     return json_services_classes, json_components_classes
 
 
+# TODO:
+def __get_source_list():
+    file = os.path.join(os.getcwd(), 'source-list.json')
+    file_url = configuration['REPOSITORIES'][0] + 'source-list.json'
+    urllib.request.urlretrieve(file_url, file)
+
+    with open(file) as f:
+        data = json.load(f)
+
+    os.remove(file)
+
+
 def __search_in__(collection, element):
     """ It searches an element or a piece of an element in a collection and returns the whole element back
     This is used to searches the name of a component or a service in a collection of string paths """
@@ -130,14 +142,17 @@ def find_element(module, json_module_classes, repository, bot_name):
     developing = repository.get_contents(path=module + '/developing')
     stable = [element.path for element in stable]
     developing = [element.path for element in developing]
-    current_dir = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
+
+    local = [os.path.join(root, file) for root, file in
+             [(root, files) for root, dirs, files in os.walk(os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name))]]
 
     routes = []
     for element in json_module_classes:
         print("Searching the element ", element)
 
-
-        obj = __search_local__(current_dir, element)
+        # TODO
+        # obj = __search_local__(current_dir, element)
+        obj = __search_in__(local, element)
         if obj is not None:
             print("Found in local:", os.path.abspath(obj))
             continue
