@@ -130,12 +130,12 @@ def find_element(module, json_module_classes, repository, bot_name):
     developing = repository.get_contents(path=module + '/developing')
     stable = [element.path for element in stable]
     developing = [element.path for element in developing]
+    current_dir = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
 
     routes = []
     for element in json_module_classes:
         print("Searching the element ", element)
 
-        current_dir = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
 
         obj = __search_local__(current_dir, element)
         if obj is not None:
