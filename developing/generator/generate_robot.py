@@ -90,10 +90,7 @@ def substitute_params(file, words):
 def extract_element(conf):
     """ It inspects the bot's json file searching for the components and services of the robot """
     json = MyJson(filename=conf['json']).json
-
-    json_services_classes = []
-    json_components_classes = []
-
+    json_services_classes, json_components_classes = [], []
     for (key, value) in json['services'].items():
         json_services_classes.append(value['cls'])
     for (key, value) in json['components'].items():
@@ -102,45 +99,52 @@ def extract_element(conf):
     return json_services_classes, json_components_classes
 
 
-# TODO:
 def __get_source_list():
+    """ It downloads the source list from the repository of Pyro4Bot, then delete it and return a dict with the info """
     file = os.path.join(os.getcwd(), 'source-list.json')
     file_url = configuration['REPOSITORIES'][0] + 'source-list.json'
     urllib.request.urlretrieve(file_url, file)
-
     with open(file) as f:
         data = json.load(f)
-
     os.remove(file)
+    return data
 
 
-def __search_in__(collection, element):
+def __search_in(collection, element):
     """ It searches an element or a piece of an element in a collection and returns the whole element back
     This is used to searches the name of a component or a service in a collection of string paths """
     return next((item for item in collection if element.lower() == item.split('/')[-1].lower()), None)
 
 
-def __search_local__(current_dir, filename):
-    """ It searches and return the path to the missing file if it is the directory passed by parameter """
-    filename = filename + '.py' if '.py' not in filename else filename
-    for root, dirs, files in os.walk(current_dir):
-        for file in files:
-            if filename.lower() == file.lower():
-                path_file = os.path.join(root, file)
-                return path_file
-    return None
+# def __search_local__(current_dir, filename):
+#     """ It searches and return the path to the missing file if it is the directory passed by parameter """
+#     filename = filename + '.py' if '.py' not in filename else filename
+#     for root, dirs, files in os.walk(current_dir):
+#         for file in files:
+#             if filename.lower() == file.lower():
+#                 path_file = os.path.join(root, file)
+#                 return path_file
+#     return None
 
 
 # TODO: this only searches in one repository; it doesn't check if there are more than one repository in the config file
-def find_element(module, json_module_classes, repository, bot_name):
-    """ It searches the element (component of service) in the repository of Pyro4Bot and return the url path """
-    stable = repository.get_contents(path=module + '/stable')
-    developing = repository.get_contents(path=module + '/developing')
+def find_elements(module, json_module_classes, source_list, bot_name):
+    """ It searches the element (component of service) in your directory of the robot and in the web repository of Pyro4Bot
+     and return the url path in case the element is not downloaded in local """
+    local = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
+                            os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)))] for it in lst]
+
+    stable = source_list.get_contents(path=module + '/stable')
+    developing = source_list.get_contents(path=module + '/developing')
+
+    stable = [(item.__name__, item['content'], item['path']) for item in source_list if
+              item == bot_name or item['content'] == bot_name]
+
     stable = [element.path for element in stable]
     developing = [element.path for element in developing]
 
-    local = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
-                            os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)))] for it in lst]
+    # json_module_clases.filter (   --> map
+    #                   ( reduce  repository   , lambda    local > remote (stable) > remote (develop)   )   )
 
     routes = []
     for element in json_module_classes:
@@ -148,13 +152,13 @@ def find_element(module, json_module_classes, repository, bot_name):
 
         # TODO
         # obj = __search_local__(current_dir, element)
-        obj = __search_in__(local, element)
+        obj = __search_in(local, element)
         if obj is not None:
             print("Found in local:", os.path.abspath(obj))
             continue
         else:
-            obj = __search_in__(stable, element)
-        obj = obj if obj is not None else __search_in__(developing, element)
+            obj = __search_in(stable, element)
+        obj = obj if obj is not None else __search_in(developing, element)
         if obj is not None:
             routes.append(obj)
             print("Found in repository: ", obj)
@@ -170,9 +174,7 @@ def download_element(bot_name, url_directory):
     global configuration
     local_path = os.path.join(configuration['PYRO4BOT_ROBOTS'], bot_name)
     for each in url_directory:
-        directory = each.replace('stable/', '')
-        directory = directory.replace('developing/', '')
-        directory = os.path.join(local_path, *directory.split('/'))
+        directory = os.path.join(local_path, *each.replace('stable/', '').replace('developing/', '').split('/'))
         if not os.path.exists(directory):
             os.makedirs(directory)
             # Generate an init file to each python package (each directory)
@@ -198,10 +200,15 @@ def update_robot(conf):
     # #  github = Github(login_or_token="17143d9e9f8b00012627e2545eefce8fda07d216")
     repository = Github("pyro4bot", "90racano").get_user().get_orgs()[0].get_repo('Components')
 
-    url_services = find_element(module='services', json_module_classes=json_services_classes, repository=repository,
-                                bot_name=conf['robot'])
-    url_components = find_element(module='components', json_module_classes=json_components_classes,
-                                  repository=repository, bot_name=conf['robot'])
+    source_list = __get_source_list()
+    local = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
+                            os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'])))] for it in lst]
+
+    url_services = find_elements(module='services', json_module_classes=json_services_classes,
+                                 source_list=source_list['services'],
+                                 bot_name=conf['robot'])
+    url_components = find_elements(module='components', json_module_classes=json_components_classes,
+                                   source_list=source_list['components'], bot_name=conf['robot'])
 
     download_element(conf['robot'], url_services)
     download_element(conf['robot'], url_components)
