@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # this classes are an adaption of adafruit gpio class
-# support three different motherboards
+# support three diferent moderboards
 # ____________developed by paco andres____________________
 
 from node.libs.gpio.Platform import *

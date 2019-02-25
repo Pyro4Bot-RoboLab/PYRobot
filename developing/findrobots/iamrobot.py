@@ -1,7 +1,13 @@
+#!/usr/bin/env python3
 import sys
 import socket
-import netifaces as ni
 import time
+try:
+    import netifaces as ni
+except:
+    print("netifaces package not finded")
+    print("Please install. pip3 install netiface")
+    exit()
 
 PORT = 56665
 

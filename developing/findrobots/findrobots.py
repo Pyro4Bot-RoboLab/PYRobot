@@ -3,7 +3,12 @@ import sys
 import time
 import threading
 import socket
-import netifaces as ni
+try:
+    import netifaces as ni
+except:
+    print("netifaces package not finded")
+    print("Please install. pip3 install netiface")
+    exit()
 
 # Send UDP broadcast packets
 
@@ -42,8 +47,11 @@ class Searcher:
         self.stop = threading.Event()
         self.socket_list = []
         try:
-            interface_list = ni.interfaces()
-            interface_list.remove("lo0")
+            interface_list = [x for x in ni.interfaces() if x.find('lo')==-1]
+            print("\nAvailable Interfaces:")
+            for x in interface_list:
+                print("\t--> {}".format(x))
+            print("\n_________Finding Robots .. _____________\n")
             interfaces = list(zip(
                 interface_list, get_all_ip_address(broadcast=True)))
             n = 0
@@ -79,12 +87,14 @@ class Searcher:
         while not stop_event.is_set():
             try:
                 data, wherefrom = self.socket_list[n].recvfrom(1500, 0)
-                self.robots[wherefrom] = data
+                self.robots[wherefrom] = data.decode()
             except socket.timeout:
                 pass
 
 
 if __name__ == '__main__':
     s = Searcher()
-    for (ip, bot) in s.robots.items():
-        print("The robot: ", bot.decode().replace("/hello", ""), " is at: ", ip)
+
+    for r in s.robots.items():
+        print("   Name:{}\tIp:{}".format(r[1].split("/")[0],r[0][0]))
+    print("_____________________\n")

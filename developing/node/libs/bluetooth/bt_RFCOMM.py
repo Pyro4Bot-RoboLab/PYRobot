@@ -1,5 +1,10 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import cmd
+#sudo apt-get install bluez python-bluez
+#sudo apt-get install bluez python-bluez
+#sudo apt-get install bluetooth libbluetooth-dev
+#sudo python3 -m pip install pybluez
+
 import bluetooth
 from subprocess import Popen, PIPE
 import sys
@@ -9,7 +14,7 @@ def GetFirstMAC():
     proc = Popen(['hcitool', 'dev'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, error = proc.communicate()
     if proc.returncode == 0:
-        lines = output.split('\r')
+        lines = output.decode().split('\r')
         for line in lines:
             if 'hci0' in line:
                 temp = line.split('\t')

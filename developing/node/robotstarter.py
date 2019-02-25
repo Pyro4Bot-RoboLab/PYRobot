@@ -109,13 +109,13 @@ def pre_start_node(robot):
     return PROCESS
 
 
-def starter(filename="", json=None):
+def starter(filename="", json=None, params={}):
     """Get configuration and launch pre_starter."""
     if json is None:
         json = {}
 
     # Read JSON
-    N_conf = config.Config(filename=filename, json=json)
+    N_conf = config.Config(filename=filename, json=json, params=params)
 
     # Object for robot load
     robot = N_conf.robot
@@ -126,4 +126,12 @@ def starter(filename="", json=None):
         "PYRO4BOT." + robot["node"]["name"] + "." + "Starter")
 
     PROCESS = pre_start_node(robot)
+    print("")
+    print("")
+    print(colored("AVAILABLE CONSOLES:","yellow"))
+    print("\t Default tty: {}".format(robot["node"]["tty_default"]))
+    print("\t Output tty:  {}".format(robot["node"]["tty_out"]))
+    print("\t Error tty:   {}".format(robot["node"]["tty_err"]))
+    print("")
+    print("")
     return PROCESS
