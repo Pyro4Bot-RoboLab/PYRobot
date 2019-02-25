@@ -213,6 +213,7 @@ def create_robot(conf):
             substitute_params(file=target,
                               words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
 
+            # Start robot file
             target = os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'], 'start.py')
             substitute_params(file=target,
                               words=[('<robot>', conf['robot']), ('<ethernet>', configuration['ETHERNET'])])
