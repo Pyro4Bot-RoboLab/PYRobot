@@ -90,15 +90,13 @@ def substitute_params(file, words):
 def extract_element(conf):
     """ It inspects the bot's json file searching for the components and services of the robot """
     json = MyJson(filename=conf['json']).json
-    json_services_classes, json_components_classes = [], []
+    json_module_classes = []
     for (key, value) in json['services'].items():
-        json_services_classes.append(value['cls'])
+        json_module_classes.append(value['cls'])
     for (key, value) in json['components'].items():
-        json_components_classes.append(value['cls'])
-    json_module_classes = json_services_classes.copy()
-    json_module_classes.append(json_components_classes)
+        json_module_classes.append(value['cls'])
 
-    return json_services_classes, json_components_classes, json_module_classes
+    return json_module_classes
 
 
 def __get_source_list():
@@ -111,7 +109,7 @@ def __get_source_list():
         with open(file) as f:
             data = json.load(f)
         os.remove(file)
-        source_list.append(data)
+        source_list.append((repo, data))
 
     return tuple(source_list)
 
@@ -119,26 +117,13 @@ def __get_source_list():
 def __search_in(collection, element):
     """ It searches an element in a collection of data dictionaries and returns the url path of the element back
     This is used to searches the name of a component or a service in a collection of data sources of modules """
-    for repo in collection:
-        # for key, values in repo.items():
-        #     [print(k, type(val), val['content']) for k, val in values.items()]
-        print(" - ")
-        [print(type(valor.items())) for (key, valor) in {skill: value for skill, value in {module: elements for module, elements in repo.items()}.items()}.items()]
-
-        [print(type(va)) for cl, va in (valor.items() for clave, valor in {k: val for k, val in
-                                                                           {key: values for key, values in
-                                                                            repo.items()}.items()}.items())]
-        print(" - ")
-        # [print(val.items()) for k, val in {key: values for key, values in repo.items()}.items()]
-        # print(" - ")
-        # [print(val.items()['content']) for k, val in {key: values for key, values in repo.items()}.items()]
-        # print(" - ")
-        # print(" - ")
-        path = next((val.items()['path'] for k, val in
-                     {key: values for key, values in repo.items()}.items()
-                     if element.lower() == val['content'].lower() or element.lower() == k.lower()), False)
+    for (url, repo) in collection:
+        path = next((description['path'] for name, description
+                     in [(k, v) for k, v in
+                         [it for sublist in [elements.items() for module, elements in repo.items()] for it in sublist]]
+                     if element.lower == name.lower() or description['content'] == element), False)
         if path:
-            return repo, path
+            return url, path
     return False
 
 
@@ -147,16 +132,16 @@ def find_elements(json_module_classes, source_list, local_list):
      and return the url path in case the element is not downloaded in local """
     downloadable_elements = []
     for element in json_module_classes:
-        print("Searching element: ", element)
-        (repo, url_path) = __search_in(source_list, element)
-        if url_path:
+        print("Searching the element: ", element)
+        found = __search_in(source_list, element)
+        if found:
+            repo, url_path = found
             local_path = url_path.replace('/stable', '').replace('/developing', '')
             if local_path not in local_list:
-                url_path = repo + url_path
-                print("Found in ", url_path)
+                print("Found in repository: ", repo + url_path)
                 downloadable_elements.append((repo, url_path))
             else:
-                print("Found in ", os.path.abspath(local_path))
+                print("Found in local: ", os.path.abspath(local_path))
         else:
             print("ERROR with the element: ", element, ".\t It's not found in the repository.")
             print("You should define it in the directories of your robot")
@@ -188,26 +173,14 @@ def update_robot(conf):
     If the services and components of the robots are already in the repository, they will be downloaded.
     If not, the user must have developed the necessary files to handle those dependencies of the robots.
     If neither of them are completed, this will show an error message to the user. """
-    json_services_classes, json_components_classes, json_module_classes = extract_element(conf)
+    json_module_classes = extract_element(conf)
 
     local_list = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
                                  os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'])))] for it in
                   lst]
-
     source_list = __get_source_list()
-
     url_modules = find_elements(json_module_classes=json_module_classes, source_list=source_list, local_list=local_list)
-
     download_element(conf['robot'], url_modules)
-
-    # url_services = find_elements(module='services', json_module_classes=json_services_classes,
-    #                              source_list=source_list['services'],
-    #                              bot_name=conf['robot'])
-    # url_components = find_elements(module='components', json_module_classes=json_components_classes,
-    #                                source_list=source_list['components'], bot_name=conf['robot'])
-    #
-    # download_element(conf['robot'], url_services)
-    # download_element(conf['robot'], url_components)
 
 
 def create_robot(conf):
