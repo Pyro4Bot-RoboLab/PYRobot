@@ -11,7 +11,6 @@ import argparse
 import json
 import urllib.request
 import shutil
-from github import Github
 
 
 def load_configuration(PYRO4BOT_HOME):
