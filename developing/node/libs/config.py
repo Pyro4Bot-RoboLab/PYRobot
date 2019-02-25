@@ -4,11 +4,12 @@
 
 import os.path
 from node.libs import utils, myjson
-from node.libs.inspection import import_module, inspecting_modules
+from node.libs.inspection import import_module,inspecting_modules
 from termcolor import colored
 import pprint
 
-_classes, _modules_errors = inspecting_modules("services", "components")
+
+_classes,_modules_errors = inspecting_modules("services","components")
 
 
 def get_field(search_dict, field, enable=True):
@@ -38,13 +39,14 @@ def get_field(search_dict, field, enable=True):
 
 
 class Config:
-    def __init__(self, filename="", json=None):
+    def __init__(self, filename="", json=None, params={}):
         self.services = None
         self.components = None
 
         self.conf = json if (filename == "") else myjson.MyJson(
             filename, dependencies=True).json
 
+        self.conf["NODE"].update(params)
         self.set_lower_case()
         self.disable_lines()
         self.fix_config()
@@ -64,6 +66,8 @@ class Config:
                     del (self.conf[key][k])
 
     def fix_config(self):
+
+
         # Add default frec
         if "def_frec" not in self.conf["node"]:
             self.conf["node"]["def_frec"] = 0.05
@@ -76,6 +80,13 @@ class Config:
         if "ip" not in self.conf["node"]:
             self.conf["node"]["ip"] = utils.get_ip_address(
                 self.conf["node"]["ethernet"])
+        #add tty out and tty err
+        tty_out,tty_err = utils.assing_ttys()
+        self.conf["node"]["tty_default"]=utils.get_tty()
+        if "tty_out" not in self.conf["node"]:
+            self.conf["node"]["tty_out"]=tty_out
+        if "tty_err" not in self.conf["node"]:
+            self.conf["node"]["tty_err"]=tty_err
 
         # Add default name
         if "name" not in self.conf["node"]:
@@ -116,7 +127,8 @@ class Config:
             v["docstring"] = {}
             v["exposed"] = {}
         for k, v in self.services.items():
-            v["mode"] = "local"
+            if "mode" not in v:
+                v["mode"] = "local"
 
         # Services configuration
         newservices = {}
