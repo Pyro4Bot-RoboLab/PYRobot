@@ -1,5 +1,5 @@
 {
   "PYRO4BOT_ROBOTS":"robots",
   "ETHERNET":"wlan0",
-  "REPOSITORIES":["https://raw.githubusercontent.com/Pyro4Bot-RoboLab/Components/developing/"]
+  "REPOSITORIES":["https://raw.githubusercontent.com/Pyro4Bot-RoboLab/Components/developing/", "https://raw.githubusercontent.com/BertoSerrano/Components/developing/"]
 }
