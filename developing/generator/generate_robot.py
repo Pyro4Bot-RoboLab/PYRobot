@@ -178,8 +178,11 @@ def update_robot(conf):
                                  os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'])))] for it in
                   lst]
     source_list = __get_source_list()
+    print("    .. .. .. ..")
     url_modules = find_elements(json_module_classes=json_module_classes, source_list=source_list, local_list=local_list)
+    print("    - - - - - ")
     download_element(conf['robot'], url_modules)
+    print("   __ __ __ __ __ ")
 
 
 def create_robot(conf):
