@@ -13,34 +13,38 @@ import socket
 def get_tty():
     return os.ttyname(sys.stdout.fileno())
 
+
 def get_tty_err():
     return os.ttyname(sys.stderr.fileno())
 
+
 def assing_ttys(tty=get_tty()):
-    num=os.path.basename(tty)
-    term=os.path.dirname(tty)+"/"
-    ttys=[x for x in os.listdir(term) if x.isnumeric() and x!=num]
+    num = os.path.basename(tty)
+    term = os.path.dirname(tty) + "/"
+    ttys = [x for x in os.listdir(term) if x.isnumeric() and x != num]
     ttys.sort()
-    if len(ttys)==1:
-        return term+ttys[0],term+ttys[0]
-    if len(ttys)>1:
-        return term+ttys[0],term+ttys[1]
-    return tty,tty
-    
+    if len(ttys) == 1:
+        return term + ttys[0], term + ttys[0]
+    if len(ttys) > 1:
+        return term + ttys[0], term + ttys[1]
+    return tty, tty
+
 
 def set_tty_err(tty):
     try:
-        sys.stderr = open(tty,'w')
+        sys.stderr = open(tty, 'w')
         return True
     except:
         return False
 
+
 def set_tty_out(tty):
     try:
-        sys.stdout = open(tty,'w')
+        sys.stdout = open(tty, 'w')
         return True
     except:
         return False
+
 
 def get_ip_address(ifname="lo"):
     """Return IP address from a specific interface."""

@@ -134,7 +134,7 @@ class Control(botlogging.Logging):
                 t = threading.Thread(target=func, args=args)
                 self.workers.append(t)
                 t.setDaemon(True)
-                #t.start()
+                # t.start()
         for t in self.workers:
             t.start()
 
@@ -158,7 +158,7 @@ class Control(botlogging.Logging):
                                  args=(publication, frec))
             self.workers.append(t)
             t.setDaemon(True)
-            #t.start()
+            # t.start()
         else:
             print(
                 "ERROR: Can not publish to object other than publication {}".format(publication))
@@ -166,7 +166,7 @@ class Control(botlogging.Logging):
     def thread_publisher(self, publication, frec):
         """Publish the publication in the subscriber list."""
         self.__check_start__()
-        print(colored("\t\t\t{}:[LOCAL] Starting Publisher".format(self.name),'green'))
+        print(colored("\t\t\t{}:[LOCAL] Starting Publisher".format(self.name), 'green'))
         if not hasattr(self, 'subscriptors'):
             self.subscriptors = {}
         while self.threadpublisher:
@@ -210,7 +210,7 @@ class Control(botlogging.Logging):
             t = threading.Thread(target=self.thread_subscriber,
                                  args=(s,))
             self.workers.append(t)
-            #t.start()
+            # t.start()
 
         except Exception:
             print("[ERROR] start_subscription. Error sending {}".format(target))
@@ -226,7 +226,7 @@ class Control(botlogging.Logging):
                 x = getattr(self, subscription.target)
                 x.subscribe(subscription.get())  # Sending as dict
                 print(colored("\t\t\t{}: [LOCAL] Subscribed to: {}".format(
-                    self.name,subscription.target), "green"))
+                    self.name, subscription.target), "green"))
             else:  # Remotes
                 connected = False
                 while not connected:
@@ -257,7 +257,7 @@ class Control(botlogging.Logging):
                                 self.deps[subscription.target].subscribe(
                                     subscription.get())
                                 print(colored("{}: [REMOTE] Subscribed to: {}".format(
-                                    self.name,subscription.target), "green"))
+                                    self.name, subscription.target), "green"))
                             connected = True
                         except Exception:
                             pass
@@ -414,25 +414,25 @@ class Control(botlogging.Logging):
         return self._REMOTE_STATUS
 
     @Pyro4.expose
-    def set_tty_out(self,tty=""):
+    def set_tty_out(self, tty=""):
         """
         Set terminal for outputs prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty=="":
+        if tty == "":
             return utils.set_tty_out(self.tty_out)
         else:
             return utils.set_tty_out(tty)
 
     @Pyro4.expose
-    def set_tty_err(self,tty=""):
+    def set_tty_err(self, tty=""):
         """
         Set terminal for errors prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty=="":
+        if tty == "":
             return utils.set_tty_err(self.tty_err)
         else:
             return utils.set_tty_err(tty)

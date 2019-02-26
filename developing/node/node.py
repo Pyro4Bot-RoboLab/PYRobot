@@ -15,10 +15,10 @@ import setproctitle
 from node.libs.inspection import inspecting_modules
 import pprint
 
-#show_warnings(_modules_libs_errors)
+# show_warnings(_modules_libs_errors)
 _LOCAL_TRYS = 5
 _REMOTE_TRYS = 5
-_classes_lib,_modules_libs_errors = inspecting_modules("node.libs")
+_classes_lib, _modules_libs_errors = inspecting_modules("node.libs")
 
 
 def import_class(services, components):
@@ -29,7 +29,6 @@ def import_class(services, components):
     for module, cls in services:
         try:
             print(colored("      FROM {} IMPORT {}".format(module, cls), "cyan"))
-            # TODO : change that "node.{}" to the actual reference.
             exec("from {} import {}".format(module, cls), globals())
         except Exception:
             print("ERROR IMPORTING CLASS: {} FROM MODULE {}".format(cls, module))
@@ -39,7 +38,6 @@ def import_class(services, components):
     for module, cls in components:
         try:
             print(colored("      FROM {} IMPORT {}".format(module, cls), "cyan"))
-            # TODO : change that "node.{}" to the actual reference.
             exec("from {} import {}".format(module, cls), globals())
         except Exception:
             print("ERROR IMPORTING CLASS: {} FROM MODULE {}".format(cls, module))
@@ -283,8 +281,8 @@ class Robot(control.Control):
             proc_pipe.send("CONTINUE")
             deps = utils.prepare_proxys(d, self.node["password"])
 
-            #assinging tty out and err for object
-            default_tty=utils.get_tty()
+            # assinging tty out and err for object
+            default_tty = utils.get_tty()
             utils.set_tty_err(d["tty_err"])
 
             # Preparing class for pyro4
@@ -313,7 +311,7 @@ class Robot(control.Control):
                 self.get_docstring(new_object, safe_exposed))
 
             daemon.requestLoop()
-            #getting tty default to exit
+            # getting tty default to exit
             utils.set_tty_out(default_tty)
             utils.set_tty_err(default_tty)
 
@@ -365,7 +363,7 @@ class Robot(control.Control):
 
     # Exposed methods (Publics)
     @Pyro4.expose
-    def get_uris(self,node=False):
+    def get_uris(self, node=False):
         """Return the URI of all the components of the robot."""
         return self.URI_proxy.list_uris(node)
 

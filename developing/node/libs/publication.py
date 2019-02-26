@@ -5,6 +5,7 @@ class Publication(object):
     """ Class designed for inclusion in the for publication and subscription.
     Publication
     """
+
     def __init__(self, data=None):
         self.data = data if data else {}
 
