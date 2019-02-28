@@ -4,8 +4,12 @@ from types import FunctionType
 import os
 import sys
 import Pyro4
-from node.libs import utils
-import pprint
+from node.libs import utils, botlogging
+
+from prompt_toolkit import prompt
+from prompt_toolkit.history import FileHistory
+
+# from prompt_toolkit.contrib.completers import WordCompleter
 
 DEFAULT_BB_PASSWORD = "PyRobot"
 
@@ -37,7 +41,10 @@ class Terminal(object):
         time.sleep(1)
         print(colored("Type help for show commands"))
         while self.exit:
-            cad = input("{} ".format(colored(str(self.uri) + ">>", 'green')))
+            self.prompt = "{} ".format(str(self.uri) + ">>")
+            cad = prompt(self.prompt,
+                         history=FileHistory('history.txt')
+                         )
             args = cad.lower().split(" ")
             command = args[0]
             if command.split(".")[0] in self.__dict__:
@@ -60,7 +67,8 @@ class Terminal(object):
         """ show information about command
             Usage:
                 help <command>
-                help  """
+                help
+        """
         try:
             print(self.methods)
             if len(args) <= 1:
@@ -102,11 +110,14 @@ class Terminal(object):
         run <component method> execute a class method
         """
         try:
-            sal = eval("self." + args[1])
-            print(colored("Running {}: ".format(args[1]), 'green'))
-            pprint.pprint(sal)
+            if args[0] == args[-1]:
+                args = args[:-1]
+            args = "".join(args).replace(", ", ",").replace("run", "")
+            sal = eval("self." + args)
+            print(colored("Running {}: ".format(args), 'green'))
+            print(sal)
         except Exception as e:
-            print("error ", args[1])
+            print("error ", args)
             print(e)
 
     def info(self, *args):
@@ -138,5 +149,5 @@ class Terminal(object):
     def reboot(self, *args):
         self.exit = False
         self.robot.shutdown()
-        os.kill(self.process[3], 9)
+        os.kill(self.pid, 9)
         time.sleep(2)
