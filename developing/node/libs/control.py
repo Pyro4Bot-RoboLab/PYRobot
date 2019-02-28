@@ -108,6 +108,11 @@ class Control(botlogging.Logging):
 
     def __init__(self):
         super(Control, self).__init__()
+        # before start worker assing ttys for output and errs
+        if hasattr(self,"tty_out"):
+            self.set_tty_err()
+        if hasattr(self,"tty_err"):
+            self.set_tty_out()
         self.mutex = threading.Lock()
         self.workers = []
         if "worker_run" not in self.__dict__:
@@ -132,11 +137,11 @@ class Control(botlogging.Logging):
         if self.worker_run:
             for func in fn:
                 t = threading.Thread(target=func, args=args)
-                self.workers.append(t)
                 t.setDaemon(True)
-                # t.start()
-        for t in self.workers:
-            t.start()
+                self.workers.append(t)
+                t.start()
+        #for t in self.workers:
+        #    t.start()
 
     @threaded
     def start_thread(self, fn, *args):
@@ -144,6 +149,7 @@ class Control(botlogging.Logging):
         self.__check_start__()
         if self.worker_run:
             t = threading.Thread(target=fn, args=args)
+            t.setDaemon(True)
             self.workers.append(t)
             t.start()
 
@@ -156,17 +162,16 @@ class Control(botlogging.Logging):
             self.threadpublisher = True
             t = threading.Thread(target=self.thread_publisher,
                                  args=(publication, frec))
-            self.workers.append(t)
             t.setDaemon(True)
-            # t.start()
+            self.workers.append(t)
+            t.start()
         else:
-            print(
-                "ERROR: Can not publish to object other than publication {}".format(publication))
+            self.L_error("Can not publish to object other than publication {}".format(publication))
 
     def thread_publisher(self, publication, frec):
         """Publish the publication in the subscriber list."""
         self.__check_start__()
-        print(colored("\t\t\t{}:[LOCAL] Starting Publisher".format(self.name), 'green'))
+        self.L_info("[FG][LOCAL] Starting Publisher")
         if not hasattr(self, 'subscriptors'):
             self.subscriptors = {}
         while self.threadpublisher:
@@ -209,8 +214,9 @@ class Control(botlogging.Logging):
             s.subscripter_uri = self.pyro4id
             t = threading.Thread(target=self.thread_subscriber,
                                  args=(s,))
+            t.setDaemon(True)
             self.workers.append(t)
-            # t.start()
+            t.start()
 
         except Exception:
             print("[ERROR] start_subscription. Error sending {}".format(target))
@@ -225,8 +231,8 @@ class Control(botlogging.Logging):
             if hasattr(self, subscription.target):  # Locals
                 x = getattr(self, subscription.target)
                 x.subscribe(subscription.get())  # Sending as dict
-                print(colored("\t\t\t{}: [LOCAL] Subscribed to: {}".format(
-                    self.name, subscription.target), "green"))
+                self.L_info("[FG][LOCAL] Subscribed to: {}".format(
+                    subscription.target))
             else:  # Remotes
                 connected = False
                 while not connected:
@@ -257,7 +263,7 @@ class Control(botlogging.Logging):
                                 self.deps[subscription.target].subscribe(
                                     subscription.get())
                                 print(colored("{}: [REMOTE] Subscribed to: {}".format(
-                                    self.name, subscription.target), "green"))
+                                    self.name,subscription.target), "green"))
                             connected = True
                         except Exception:
                             pass
@@ -414,25 +420,25 @@ class Control(botlogging.Logging):
         return self._REMOTE_STATUS
 
     @Pyro4.expose
-    def set_tty_out(self, tty=""):
+    def set_tty_out(self,tty=""):
         """
         Set terminal for outputs prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty == "":
+        if tty=="":
             return utils.set_tty_out(self.tty_out)
         else:
             return utils.set_tty_out(tty)
 
     @Pyro4.expose
-    def set_tty_err(self, tty=""):
+    def set_tty_err(self,tty=""):
         """
         Set terminal for errors prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty == "":
+        if tty=="":
             return utils.set_tty_err(self.tty_err)
         else:
             return utils.set_tty_err(tty)

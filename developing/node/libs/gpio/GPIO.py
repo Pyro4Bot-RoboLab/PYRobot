@@ -85,11 +85,11 @@ class RPiGPIO(object):
 
     def PWM(self, pin, frec):
         if self.SGPIO is not None:
-            doit = self.SGPIO.PWM(pin, frec, self.pyro4id)
+            doit = self.SGPIO.PWM(pin=pin, frec=frec, proxy=self.pyro4id)
         else:
             doit = True
         if doit:
-            return PWMCLS(self.rpi_gpio, self.pyro4id, pin, frec)
+            return PWMCLS(rpi_gpio=self.rpi_gpio, pyro4id=self.pyro4id, pin=pin, frec=frec)
         else:
             return None
 
