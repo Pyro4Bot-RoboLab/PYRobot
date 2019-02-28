@@ -5,7 +5,7 @@
 from colorama import Cursor, init, Fore, Back, Style
 import re
 
-init()
+#init()
 STYLE = re.compile("\[[F,B,S][A-Z]\]")
 print(Style.RESET_ALL)
 
@@ -53,14 +53,14 @@ def back(n):
     return Cursor.BACK(n)
 
 
-def outlog(mesaje):
+def log_color(mesaje):
     colors = [s for s in STYLE.findall(mesaje) if s in color]
     for s in colors:
         mesaje = mesaje.replace(s, color[s])
-    print(mesaje + Style.RESET_ALL)
+    return mesaje + Style.RESET_ALL
 
 
-def rawlog(mesaje):
+def rawlog_color(mesaje):
     colors = [s for s in STYLE.findall(mesaje) if s in color]
     for s in colors:
         mesaje = mesaje.replace(s, "")
