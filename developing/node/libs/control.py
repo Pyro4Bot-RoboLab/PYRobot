@@ -103,15 +103,15 @@ def timing(f):
 
 
 class Control(botlogging.Logging):
-    """ This class provide threading funcionality to all object in node.
+    """ This class provide threading functionality to all object in node.
         Init workers Threads and PUB/SUB thread"""
 
     def __init__(self):
         super(Control, self).__init__()
         # before start worker assing ttys for output and errs
-        if hasattr(self,"tty_out"):
+        if hasattr(self, "tty_out"):
             self.set_tty_err()
-        if hasattr(self,"tty_err"):
+        if hasattr(self, "tty_err"):
             self.set_tty_out()
         self.mutex = threading.Lock()
         self.workers = []
@@ -128,7 +128,7 @@ class Control(botlogging.Logging):
     def start_worker(self, fn, *args):
         """ Start all workers daemon"""
         self.__check_start__()
-        # before start worker assing ttys for output and errs
+        # before start worker assign ttys for output and errs
         self.set_tty_err()
         self.set_tty_out()
         if type(fn) not in (list, tuple):
@@ -140,7 +140,7 @@ class Control(botlogging.Logging):
                 t.setDaemon(True)
                 self.workers.append(t)
                 t.start()
-        #for t in self.workers:
+        # for t in self.workers:
         #    t.start()
 
     @threaded
@@ -263,7 +263,7 @@ class Control(botlogging.Logging):
                                 self.deps[subscription.target].subscribe(
                                     subscription.get())
                                 print(colored("{}: [REMOTE] Subscribed to: {}".format(
-                                    self.name,subscription.target), "green"))
+                                    self.name, subscription.target), "green"))
                             connected = True
                         except Exception:
                             pass
@@ -420,25 +420,25 @@ class Control(botlogging.Logging):
         return self._REMOTE_STATUS
 
     @Pyro4.expose
-    def set_tty_out(self,tty=""):
+    def set_tty_out(self, tty=""):
         """
         Set terminal for outputs prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty=="":
+        if tty == "":
             return utils.set_tty_out(self.tty_out)
         else:
             return utils.set_tty_out(tty)
 
     @Pyro4.expose
-    def set_tty_err(self,tty=""):
+    def set_tty_err(self, tty=""):
         """
         Set terminal for errors prints
         if not tty paramenter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
-        if tty=="":
+        if tty == "":
             return utils.set_tty_err(self.tty_err)
         else:
             return utils.set_tty_err(tty)

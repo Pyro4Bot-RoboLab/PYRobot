@@ -7,15 +7,19 @@ import Pyro4
 from node.libs import utils, botlogging
 
 from prompt_toolkit import prompt
+from prompt_toolkit.shortcuts import yes_no_dialog
 from prompt_toolkit.history import FileHistory
-
-# from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit.completion import WordCompleter
 
 DEFAULT_BB_PASSWORD = "PyRobot"
 
 
-def methods(cls):
+def get_methods(cls):
     return [x for x, y in cls.__dict__.items() if type(y) == FunctionType and x[0] != "_"]
+
+
+def get_elements(cls):
+    return [x for x, y in cls.__dict__.items() if type(y) == Pyro4.core.Proxy and x[0] != "_"]
 
 
 class Terminal(object):
@@ -31,20 +35,30 @@ class Terminal(object):
 
         self.uri = uri
         self.pid = pid
-        self.methods = methods(Terminal)
         self.TTY = utils.get_tty()
-
         self._get_proxys()
+
+        self.methods = []
+        self.__indexing_methods_()
         self._control()
+
+    def __indexing_methods_(self):
+        elements = get_elements(self)
+        methods = get_methods(Terminal)
+        for el in elements:
+            methods.append(el)
+            sal = eval("self." + el + ".__docstring__()")
+            for k, v in sal.items():
+                print(k)
+                methods.append((el + '.' + k))
+        self.methods = methods
 
     def _control(self):
         time.sleep(1)
-        print(colored("Type help for show commands"))
+        completer = WordCompleter(words=self.methods, ignore_case=True)
         while self.exit:
             self.prompt = "{} ".format(str(self.uri) + ">>")
-            cad = prompt(self.prompt,
-                         history=FileHistory('history.txt')
-                         )
+            cad = prompt(self.prompt, history=FileHistory('history.txt'), completer=completer)
             args = cad.lower().split(" ")
             command = args[0]
             if command.split(".")[0] in self.__dict__:
@@ -97,8 +111,10 @@ class Terminal(object):
 
     def quit(self, *args):
         """ exit from terminal without killing services and components"""
-        self.exit = False
-        exit()
+        print("Quitting this way will not kill all the services and components")
+        if yes_no_dialog(text="Are you sure you want to quit?"):
+            self.exit = False
+            exit()
 
     def doc(self, *args):
         for k, v in self.robot.__docstring__().items():
@@ -147,7 +163,8 @@ class Terminal(object):
             sal = eval("self.{}.set_tty_out()".format(c))
 
     def reboot(self, *args):
-        self.exit = False
-        self.robot.shutdown()
-        os.kill(self.pid, 9)
-        time.sleep(2)
+        if yes_no_dialog(text="Are you sure you want to reboot?"):
+            self.exit = False
+            self.robot.shutdown()
+            os.kill(self.pid, 9)
+            time.sleep(2)

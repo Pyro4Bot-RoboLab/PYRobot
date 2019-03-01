@@ -370,10 +370,8 @@ class Robot(control.Control):
     @Pyro4.expose
     def get_name_uri(self, name):
         """Return the URI of the given name as a component.
-
         @name: string.
                 Follow the following format: "robotname.component"
-
         """
         if name in self.PROCESS:
             uri = self.URI_proxy.get_uri(name)
