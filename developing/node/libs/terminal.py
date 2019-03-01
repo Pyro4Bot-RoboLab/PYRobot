@@ -2,12 +2,12 @@ from termcolor import colored
 import time
 from types import FunctionType
 import os
-import sys
+import sys, io
 import Pyro4
 from node.libs import utils, botlogging
 
 from prompt_toolkit import prompt
-from prompt_toolkit.shortcuts import yes_no_dialog
+from prompt_toolkit.shortcuts import confirm, yes_no_dialog
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.completion import WordCompleter
 
@@ -19,7 +19,8 @@ def get_methods(cls):
 
 
 def get_elements(cls):
-    return [x for x, y in cls.__dict__.items() if type(y) == Pyro4.core.Proxy and x[0] != "_"]
+    return [x for x, y in cls.__dict__.items() if
+            type(y) == Pyro4.core.Proxy and x[0] != "_" and x != "robot" and x != cls.name]
 
 
 class Terminal(object):
@@ -38,24 +39,28 @@ class Terminal(object):
         self.TTY = utils.get_tty()
         self._get_proxys()
 
-        self.methods = []
-        self.__indexing_methods_()
+        self.methods = get_methods(Terminal)
+        self._all_methods = []
+        self._indexing_methods_()
         self._control()
 
-    def __indexing_methods_(self):
+    def _indexing_methods_(self):
         elements = get_elements(self)
-        methods = get_methods(Terminal)
+        methods = self.methods.copy()
+        stdout_ = sys.stdout
+        sys.stdout = io.StringIO()
         for el in elements:
             methods.append(el)
             sal = eval("self." + el + ".__docstring__()")
             for k, v in sal.items():
                 print(k)
                 methods.append((el + '.' + k))
-        self.methods = methods
+        sys.stdout = stdout_
+        self._all_methods = methods
 
     def _control(self):
         time.sleep(1)
-        completer = WordCompleter(words=self.methods, ignore_case=True)
+        completer = WordCompleter(words=self._all_methods, ignore_case=True)
         while self.exit:
             self.prompt = "{} ".format(str(self.uri) + ">>")
             cad = prompt(self.prompt, history=FileHistory('history.txt'), completer=completer)
@@ -84,7 +89,6 @@ class Terminal(object):
                 help
         """
         try:
-            print(self.methods)
             if len(args) <= 1:
                 for f in self.methods:
                     print("command {}:".format(f))
@@ -98,12 +102,13 @@ class Terminal(object):
 
     def shutdown(self, *args):
         """ exit from terminal killing all services and components"""
-        self.robot.shutdown()
-        try:
-            os.kill(self.pid, 9)
-        except:
-            print("Error: no PID available")
-        exit()
+        if confirm(message="Are you sure you want to shutdown?"):
+            self.robot.shutdown()
+            try:
+                os.kill(self.pid, 9)
+            except:
+                print("Error: no PID available")
+            exit()
 
     def status(self, *args):
         """ List all process started"""
@@ -112,7 +117,7 @@ class Terminal(object):
     def quit(self, *args):
         """ exit from terminal without killing services and components"""
         print("Quitting this way will not kill all the services and components")
-        if yes_no_dialog(text="Are you sure you want to quit?"):
+        if confirm(message="Are you sure you want to quit?"):
             self.exit = False
             exit()
 
@@ -163,7 +168,7 @@ class Terminal(object):
             sal = eval("self.{}.set_tty_out()".format(c))
 
     def reboot(self, *args):
-        if yes_no_dialog(text="Are you sure you want to reboot?"):
+        if confirm(message="Are you sure you want to reboot?"):
             self.exit = False
             self.robot.shutdown()
             os.kill(self.pid, 9)
