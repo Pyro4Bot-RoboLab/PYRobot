@@ -7,9 +7,10 @@ import Pyro4
 from node.libs import utils, botlogging
 
 from prompt_toolkit import prompt
-from prompt_toolkit.shortcuts import confirm, yes_no_dialog
+from prompt_toolkit.shortcuts import confirm
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 DEFAULT_BB_PASSWORD = "PyRobot"
 
@@ -63,16 +64,20 @@ class Terminal(object):
         completer = WordCompleter(words=self._all_methods, ignore_case=True)
         while self.exit:
             self.prompt = "{} ".format(str(self.uri) + ">>")
-            cad = prompt(self.prompt, history=FileHistory('history.txt'), completer=completer)
-            args = cad.lower().split(" ")
-            command = args[0]
-            if command.split(".")[0] in self.__dict__:
-                args.append(command)
-                command = "run"
-            if command in self.methods:
-                eval("self." + command + "(*args)")
+            cad = prompt(self.prompt, history=FileHistory('history.txt'), completer=completer,
+                         auto_suggest=AutoSuggestFromHistory(), mouse_support=True, complete_in_thread=True)
+            if 'robot' in cad or self.name in cad:
+                print("command ", cad, " not executed for precaution")
             else:
-                print("command {} not found".format(command))
+                args = cad.lower().split(" ")
+                command = args[0]
+                if command.split(".")[0] in self.__dict__:
+                    args.append(command)
+                    command = "run"
+                if command in self.methods:
+                    eval("self." + command + "(*args)")
+                else:
+                    print("command {} not found".format(command))
 
     def _get_proxys(self):
         proxys = [x for x in self.robot.get_uris(True) if isinstance(x, str)]
