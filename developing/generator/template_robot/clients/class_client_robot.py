@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ____________developed by paco andres____________________
+# _________collaboration with cristian vazquez____________
 import Pyro4
 import os
 import sys
-import utils
-sys.path.append("../node/libs")
+import libs.utils as utils
 
 DEFAULT_BB_PASSWORD = "PyRobot"
 
@@ -45,12 +48,14 @@ class ClientRobot(object):
         self.port_robot = port_robot
         self.bigbrother_passw = bigbrother_passw if (
             bigbrother_passw) else DEFAULT_BB_PASSWORD
+        self.info={}
         try:
             proxys = self._proxy_robot()
             for p in proxys:
                 con = p.split("@")[0].split(".")[1]
                 proxy = utils.get_pyro4proxy(p, self.name)
                 setattr(self, con, proxy)
+                self.info[con]=proxy.__docstring__()
         except Pyro4.errors.NamingError:
             print("Error: Unknown name {}".format(name))
             exit()
@@ -72,13 +77,15 @@ class ClientRobot(object):
         else:
             # NameServer o BigBrother
             for x in utils.get_all_ip_address(broadcast=True):
-                # print "Locating on :", x
+                print ("Locating on :", x)
                 try:
-                    # print "CONFIG",  Pyro4.config.asDict()
+                    #print("CONFIG",  Pyro4.config.asDict())
                     Pyro4.config.BROADCAST_ADDRS = x
                     ns = Pyro4.locateNS()
                 except Exception:
                     ns = None
+                if ns is not None:
+                    break
             if not ns:
                 print("ERROR: Unable to locate a name server.")
                 exit()
@@ -108,3 +115,10 @@ class ClientRobot(object):
             print("Robot not found.")
             os._exit(0)
         return proxys
+
+
+    def show_info(self):
+        for comp,v in self.info.items():
+            print("component:", comp, ", with methods:")
+            for metho,info in v.items():
+                print("\t{}".format(metho))
