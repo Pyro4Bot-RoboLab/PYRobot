@@ -28,6 +28,7 @@ class ClientRobot(object):
      whatever it is, returns the proxy of the robot that was requested.
      If not, returns error.
     """
+
     def __init__(self, name, port_robot=4041, bigbrother_passw=None):
         """ClientRobot initialization method.
 
@@ -48,19 +49,19 @@ class ClientRobot(object):
         self.port_robot = port_robot
         self.bigbrother_passw = bigbrother_passw if (
             bigbrother_passw) else DEFAULT_BB_PASSWORD
-        self.info={}
+        self.info = {}
         try:
             proxys = self._proxy_robot()
             for p in proxys:
                 con = p.split("@")[0].split(".")[1]
                 proxy = utils.get_pyro4proxy(p, self.name)
                 setattr(self, con, proxy)
-                self.info[con]=proxy.__docstring__()
+                self.info[con] = proxy.__docstring__()
         except Pyro4.errors.NamingError:
             print("Error: Unknown name {}".format(name))
             exit()
         except Exception:
-            print("ERROR: conection")
+            print("ERROR: connection")
             raise
             exit()
 
@@ -69,7 +70,7 @@ class ClientRobot(object):
         if not self.ns:
             try:
                 uri = "PYRO:" + self.name + "@" + \
-                    self.ip + ":" + str(self.port_robot)
+                      self.ip + ":" + str(self.port_robot)
                 self.node = utils.get_pyro4proxy(uri, self.name)
             except Exception:
                 print("ERROR: invalid URI: %d" % uri)
@@ -77,9 +78,9 @@ class ClientRobot(object):
         else:
             # NameServer o BigBrother
             for x in utils.get_all_ip_address(broadcast=True):
-                print ("Locating on :", x)
+                print("Locating on :", x)
                 try:
-                    #print("CONFIG",  Pyro4.config.asDict())
+                    # print("CONFIG",  Pyro4.config.asDict())
                     Pyro4.config.BROADCAST_ADDRS = x
                     ns = Pyro4.locateNS()
                 except Exception:
@@ -116,9 +117,8 @@ class ClientRobot(object):
             os._exit(0)
         return proxys
 
-
     def show_info(self):
-        for comp,v in self.info.items():
+        for comp, v in self.info.items():
             print("component:", comp, ", with methods:")
-            for metho,info in v.items():
+            for metho, info in v.items():
                 print("\t{}".format(metho))
