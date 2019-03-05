@@ -18,7 +18,7 @@ class RPi_PWM(object):
         self.pyro4id = pyro4id
         self.pin = pin
         self.frec = frec
-        self.pwm = self.rpi_gpio.PWM(pin, frec)
+        # self.pwm = self.rpi_gpio.PWM(pin, frec)
 
     def start(self, dutycycle, frequency_hz=2000):
         """Enable PWM output on specified pin.  Set to initial percent duty cycle
