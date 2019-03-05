@@ -350,9 +350,6 @@ class Robot(control.Control):
         connectors = obj.get("_services", []) + obj.get("_locals", [])
         keys = list(obj.keys()) + obj.get("_resolved_remote_deps", [])
 
-        # TODO
-        #   connectors = [self.node["name"] + '.' + con for con in connectors]
-
         unfulfilled = [req for req in requireds if req not in
                        [con.split(".")[1] for con in connectors] + keys]
         return unfulfilled

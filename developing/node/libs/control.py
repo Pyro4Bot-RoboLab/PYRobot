@@ -20,7 +20,7 @@ def threaded(fn):
     """To use as decorator to make a function call threaded."""
 
     def wrapper(*args, **kwargs):
-        thread = Thread(target=fn, args=args, kwargs=kwargs)
+        thread = Thread(target=fn, args=args, name=fn.__name__, kwargs=kwargs)
         thread.start()
         return thread
 
@@ -136,7 +136,8 @@ class Control(botlogging.Logging):
 
         if self.worker_run:
             for func in fn:
-                t = threading.Thread(target=func, args=args)
+                name = self.name + "." + func.__name__
+                t = threading.Thread(target=func, name=name, args=args)
                 t.setDaemon(True)
                 self.workers.append(t)
                 t.start()
@@ -148,7 +149,8 @@ class Control(botlogging.Logging):
         """ Start all workers daemon"""
         self.__check_start__()
         if self.worker_run:
-            t = threading.Thread(target=fn, args=args)
+            name = self.name + "." + fn.__name__
+            t = threading.Thread(target=fn, name=name, args=args)
             t.setDaemon(True)
             self.workers.append(t)
             t.start()
@@ -161,7 +163,8 @@ class Control(botlogging.Logging):
         if isinstance(publication, Publication):
             self.threadpublisher = True
             t = threading.Thread(target=self.thread_publisher,
-                                 args=(publication, frec))
+                                 args=(publication, frec),
+                                 name=self.name + ".publisher")
             t.setDaemon(True)
             self.workers.append(t)
             t.start()
@@ -177,7 +180,8 @@ class Control(botlogging.Logging):
         while self.threadpublisher:
             value = publication.get()
             try:
-                for key in self.subscriptors.keys():  # Key has an attribute to publish
+                subscriptors = self.subscriptors.copy()
+                for key in subscriptors.keys():  # Key has an attribute to publish
                     subscriptors = self.subscriptors[key]
                     try:
                         if key in value:
@@ -213,7 +217,8 @@ class Control(botlogging.Logging):
                              subscripter_attr, subscripter_password)
             s.subscripter_uri = self.pyro4id
             t = threading.Thread(target=self.thread_subscriber,
-                                 args=(s,))
+                                 args=(s,),
+                                 name=self.name + ".subcription")
             t.setDaemon(True)
             self.workers.append(t)
             t.start()
@@ -423,7 +428,7 @@ class Control(botlogging.Logging):
     def set_tty_out(self, tty=""):
         """
         Set terminal for outputs prints
-        if not tty paramenter set default component tty.
+        if not tty parameter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
         if tty == "":
@@ -435,7 +440,7 @@ class Control(botlogging.Logging):
     def set_tty_err(self, tty=""):
         """
         Set terminal for errors prints
-        if not tty paramenter set default component tty.
+        if not tty parameter set default component tty.
         check errror in tty returning false if it can't be assigned
         """
         if tty == "":
