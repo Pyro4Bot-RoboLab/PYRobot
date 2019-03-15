@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import sys
 import time
 import threading
 import socket
+
 try:
     import netifaces as ni
 except:
@@ -47,7 +47,7 @@ class Searcher:
         self.stop = threading.Event()
         self.socket_list = []
         try:
-            interface_list = [x for x in ni.interfaces() if x.find('lo')==-1]
+            interface_list = [x for x in ni.interfaces() if x.find('lo') == -1]
             print("\nAvailable Interfaces:")
             for x in interface_list:
                 print("\t--> {}".format(x))
@@ -96,5 +96,5 @@ if __name__ == '__main__':
     s = Searcher()
 
     for r in s.robots.items():
-        print("   Name:{}\tIp:{}".format(r[1].split("/")[0],r[0][0]))
+        print("   Name:{}\tIp:{}".format(r[1].split("/")[0], r[0][0]))
     print("_____________________\n")

@@ -7,6 +7,7 @@ import threading
 from threading import Thread
 from termcolor import colored
 from node.libs.botlogging import botlogging
+from ordered_set import OrderedSet
 
 SECS_TO_CHECK_STATUS = 5
 
@@ -27,33 +28,22 @@ def threaded(fn):
     return wrapper
 
 
-def load_config(in_function):
-    """ Decorator for load Json options in Pyro4bot objects
-        init superclass control """
-
-    def out_function(*args, **kwargs):
-        _self = args[0]
-        try:
-            _self.DATA = args[1]
-        except Exception:
-            pass
-        _self.__dict__.update(kwargs)
-        super(_self.__class__.__mro__[0], _self).__init__()
-        in_function(*args, **kwargs)
-
-    return out_function
-
-
 def Pyro4bot_Loader(clss, **kwargs):
     """ Decorator for load Json options in Pyro4bot objects
         init superclass control
     """
     original_init = clss.__init__
+    supes = OrderedSet(clss.__mro__[::-1])
+    supes.pop()
 
     def init(self):
         for k, v in kwargs.items():
             setattr(self, k, v)
-        super(clss, self).__init__()
+        for x in supes:
+            try:
+                x.__init__(x)
+            except:
+                pass
         original_init(self)
 
     clss.__init__ = init
