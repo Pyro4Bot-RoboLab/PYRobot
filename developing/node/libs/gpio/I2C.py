@@ -13,7 +13,7 @@ if HARDWARE == "RASPBERRY_PI":
         BUS = 0
     else:
         BUS = 1
-    OTHER_BUS = 0  # dtparam=i2c_vc=on PARA ACTIVARLO EN el config de raspaberry
+    OTHER_BUS = 0  # dtparam=i2c_vc=on PARA ACTIVARLO EN el config de raspberry
 
 
 class RPiI2C(object):

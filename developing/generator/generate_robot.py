@@ -87,19 +87,22 @@ def substitute_params(file, words):
 
 
 def extract_element(conf):
-    """ It inspects the bot's json file searching for the components and services of the robot """
+    """ It inspects the bot's json file searching for the components and services of the robot
+        ::return: list with the name of the element classes (services or components) required for the robot
+        ::rtype: list of strings """
     json = MyJson(filename=conf['json']).json
     json_module_classes = []
-    for (key, value) in json['services'].items():
-        json_module_classes.append(value['cls'])
-    for (key, value) in json['components'].items():
+
+    for key, value in {**json['services'], **json['components']}.items():
         json_module_classes.append(value['cls'])
 
     return json_module_classes
 
 
 def __get_source_list():
-    """ It downloads the source list from the repository of Pyro4Bot, then delete it and return a dict with the info """
+    """ It downloads the source list from the repository of Pyro4Bot, then delete it and returns a dict with the info
+        ::return: a collection with the data from the json source-list file and its repository
+        ::rtype: tuple of tuples: ( (repo: string, data: dict) ) """
     file = os.path.join(os.getcwd(), 'source-list.json')
     source_list = []
     for repo in configuration['REPOSITORIES']:
@@ -128,7 +131,17 @@ def __search_in(collection, element):
 
 def find_elements(json_module_classes, source_list, local_list, botname):
     """ It searches the element (component of service) in your directory of the robot and in the web repository of Pyro4Bot
-     and return the url path in case the element is not downloaded in local """
+     and return the url path in case the element is not downloaded in local
+         ::param json_module_classes: list with all the elements required of the pyro4bot robot
+         ::param source_list: list with the location of all the elements of each repository
+         ::param local_list: list of elements in the robot folder with its components and services
+         ::param botname: name of the current pyro4bot robot
+         ::type json_module_classes: list of strings
+         ::type source_list: list with tuples with the repository and data from the json file, [(repository: string, json_data: dict)]
+         ::type local_list: list of elements in the robot folder with its components and services
+         ::type botname: string
+         ::return: list of each element with its url (repository url header, url_path specific location in the repository)
+         ::rtype: list of [ tuple (repository: string, url_path: string) ] """
     global configuration
     downloadable_elements = []
     for element in json_module_classes:
@@ -174,15 +187,13 @@ def update_robot(conf):
     If the services and components of the robots are already in the repository, they will be downloaded.
     If not, the user must have developed the necessary files to handle those dependencies of the robots.
     If neither of them are completed, this will show an error message to the user. """
-    json_module_classes = extract_element(conf)
-
-    local_list = [it for lst in [[os.path.join(root, file) for file in files] for root, dirs, files in
-                                 os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'])))] for it in
-                  lst]
-    source_list = __get_source_list()
+    local_list = [it for lst in
+                  [[os.path.join(root, file) for file in files]
+                   for root, dirs, files in os.walk((os.path.join(configuration['PYRO4BOT_ROBOTS'], conf['robot'])))]
+                  for it in lst]
     print("    .. .. .. ..")
-    url_modules = find_elements(json_module_classes=json_module_classes, source_list=source_list, local_list=local_list,
-                                botname=conf['robot'])
+    url_modules = find_elements(json_module_classes=extract_element(conf), source_list=__get_source_list(),
+                                local_list=local_list, botname=conf['robot'])
     print("    - - - - - ")
     download_element(conf['robot'], url_modules)
     print("   __ __ __ __ __ ")
