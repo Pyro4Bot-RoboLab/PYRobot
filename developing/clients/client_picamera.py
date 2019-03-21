@@ -29,7 +29,7 @@ class clientCamera(object):
         try:
             client_socket.connect((ip, port))
             try:
-                connection = client_socket.makefile("make" + str(port))
+                connection = client_socket.makefile("rb")
                 # Construct a stream to hold the image data and read the image
                 # data from the connection
                 image_stream = io.BytesIO()

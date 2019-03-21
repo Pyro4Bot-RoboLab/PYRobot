@@ -12,3 +12,4 @@ pip3 install green
 pip3 install prompt_toolkit
 pip3 install PyGitHub
 pip3 install -r "requirements.txt"
+pip3 install paho-mqtt
