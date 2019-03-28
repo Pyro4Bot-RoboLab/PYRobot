@@ -44,6 +44,8 @@ configuration["generator"] = os.path.join(PYRO4BOT_HOME, "generator")
 sys.path.append(PYRO4BOT_HOME)
 from node.libs.myjson import MyJson
 
+error = False
+
 
 def check_args(args=None):
     """ It checks the arguments passed to the main program and returns them in a dictionary  """
@@ -119,11 +121,21 @@ def __get_source_list():
 def __search_in(collection, element):
     """ It searches an element in a collection of data dictionaries and returns the url path of the element back
     This is used to searches the name of a component or a service in a collection of data sources of modules """
+    path = False
     for (url, repo) in collection:
-        path = next((description['path'] for name, description
-                     in [(k, v) for k, v in
-                         [it for sublist in [elements.items() for module, elements in repo.items()] for it in sublist]]
-                     if element.lower == name.lower() or description['content'].lower() == element.lower()), False)
+        for k, v in repo.items():
+            for name, description in v.items():
+                if element.lower() == name.lower() or element.lower() == description['content'].lower():
+                    path = description['path']
+                    break
+            if path:
+                break
+        # this code doesn't work in the RPI (py3.5) for elements like picam_socket (elemts w/ diff names than the file)
+        # path = next((description['path'] for name, description
+        #              in [(k, v) for k, v in
+        #                  [it for sublist in [elements.items() for module, elements in repo.items()]
+        #                   for it in sublist]]
+        #              if element.lower == name.lower() or description['content'].lower() == element.lower()), False)
         if path:
             return url, path
     return False
@@ -143,6 +155,7 @@ def find_elements(json_module_classes, source_list, local_list, botname):
          ::return: list of each element with its url (repository url header, url_path specific location in the repository)
          ::rtype: list of [ tuple (repository: string, url_path: string) ] """
     global configuration
+    global error
     downloadable_elements = []
     for element in json_module_classes:
         print("Searching the element: ", element)
@@ -158,6 +171,7 @@ def find_elements(json_module_classes, source_list, local_list, botname):
                 print("Found in local: ", os.path.abspath(local_path))
         else:
             print("ERROR with the element: ", element, ".\t It's not found in the repository.")
+            error = True
             print("You should define it in the directories of your robot")
 
     return downloadable_elements
@@ -240,7 +254,9 @@ def create_robot(conf):
             print("The robot {} exists".format(conf["robot"]))
             return True
     except:
+        global error
         print("ERROR: There has been an error with the files and folders of your robot")
+        error = True
         return False
 
 
@@ -263,9 +279,15 @@ if __name__ == "__main__":
     if create_robot(args):
         if args['update']:
             update_robot(args)
-            print("Completed.")
+            if error:
+                print("Some error have occur.")
+            else:
+                print("Completed.")
         else:
-            print("Completed")
+            if error:
+                print("Some error have occur.")
+            else:
+                print("Completed.")
     else:
         if args['update']:
             print("You cannot update the robot because it still doesn't exist.")
