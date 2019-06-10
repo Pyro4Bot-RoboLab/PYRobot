@@ -1,5 +1,5 @@
-# PYRO4BOT
-#### PYRO4BOT Developing Project
+# PYRobot
+#### PYRobot Developing Project
 
 Development of a DSL with the use of the **Pyro** library for the Python programming language, to run it on a robot built with _Raspberry Pi_ and _Arduino_ components.
 
